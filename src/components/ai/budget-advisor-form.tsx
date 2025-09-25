@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getBudgetSuggestion, FormState } from '@/lib/actions';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,7 @@ function SubmitButton() {
 }
 
 export function BudgetAdvisorForm() {
-  const [state, formAction] = useFormState(getBudgetSuggestion, initialState);
+  const [state, formAction] = useActionState(getBudgetSuggestion, initialState);
 
   return (
     <form action={formAction} className="space-y-4">
