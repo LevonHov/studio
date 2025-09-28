@@ -21,6 +21,8 @@ type ExpensesTableProps = {
   expenses: Expense[];
   categories: Category[];
   showHeader?: boolean;
+  onEditExpense?: (expense: Expense) => void;
+  onDeleteExpense?: (expenseId: string) => void;
 };
 
 function formatCurrency(amount: number) {
@@ -42,6 +44,8 @@ export function ExpensesTable({
   expenses,
   categories,
   showHeader = true,
+  onEditExpense,
+  onDeleteExpense,
 }: ExpensesTableProps) {
   const categoryMap = new Map(categories.map((cat) => [cat.id, cat]));
 
@@ -93,8 +97,19 @@ export function ExpensesTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onEditExpense?.(expense)}
+                      disabled={!onEditExpense}
+                    >
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onDeleteExpense?.(expense.id)}
+                      disabled={!onDeleteExpense}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      Delete
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

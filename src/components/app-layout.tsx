@@ -22,6 +22,7 @@ import {
   Tags,
   Bot,
   Landmark,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -31,6 +32,7 @@ const menuItems = [
   { href: '/expenses', label: 'Expenses', icon: Wallet },
   { href: '/categories', label: 'Categories', icon: Tags },
   { href: '/ai-advisor', label: 'AI Advisor', icon: Bot },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 function AppSidebar() {
@@ -68,7 +70,10 @@ function AppSidebar() {
                 isActive={pathname.startsWith(item.href)}
                 tooltip={{ children: item.label }}
               >
-                <Link href={item.href}>
+                <Link 
+                  href={item.href}
+                  className="focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
+                >
                   <item.icon />
                   <span>{item.label}</span>
                 </Link>

@@ -1,13 +1,15 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getBudgetSuggestion, FormState } from '@/lib/actions';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Bot, Loader, Terminal } from 'lucide-react';
+import { Bot, Loader, Terminal, Settings, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import { hasConfiguredApiKey } from '@/lib/ai-client';
+import Link from 'next/link';
 
 const initialState: FormState = {
   message: '',
@@ -35,6 +37,45 @@ function SubmitButton() {
 
 export function BudgetAdvisorForm() {
   const [state, formAction] = useActionState(getBudgetSuggestion, initialState);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    setHasApiKey(hasConfiguredApiKey());
+  }, []);
+
+  if (!hasApiKey) {
+    return (
+      <Alert className="border-amber-200 bg-amber-50">
+        <Settings className="h-4 w-4" />
+        <AlertTitle>API Key Required</AlertTitle>
+        <AlertDescription className="mt-2 space-y-3">
+          <p>
+            To use the AI Budget Advisor, you need to configure your AI service API key.
+            This allows the app to generate personalized budget recommendations for you.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button asChild variant="default" size="sm">
+              <Link href="/settings" className="inline-flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Configure API Key
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Get Google AI API Key
+              </a>
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <form action={formAction} className="space-y-4">

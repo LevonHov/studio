@@ -8,8 +8,8 @@
  * - GenerateBudgetPlanOutput - The return type for the generateBudgetPlan function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { createAIClient, getFirstAvailableProvider } from '@/lib/ai-client';
+import { z } from 'genkit';
 
 const GenerateBudgetPlanInputSchema = z.object({
   financialSituation: z
@@ -32,28 +32,47 @@ export type GenerateBudgetPlanOutput = z.infer<typeof GenerateBudgetPlanOutputSc
 export async function generateBudgetPlan(
   input: GenerateBudgetPlanInput
 ): Promise<GenerateBudgetPlanOutput> {
-  return generateBudgetPlanFlow(input);
-}
+  // Get the first available AI provider
+  const provider = getFirstAvailableProvider();
+  
+  if (!provider) {
+    throw new Error('No AI provider configured. Please add your API key in Settings.');
+  }
 
-const prompt = ai.definePrompt({
-  name: 'generateBudgetPlanPrompt',
-  input: {schema: GenerateBudgetPlanInputSchema},
-  output: {schema: GenerateBudgetPlanOutputSchema},
-  prompt: `You are a personal finance advisor. Generate a personalized budget plan for the user based on their financial situation, goals, and constraints.
+  // Create AI client with user's API key
+  const ai = createAIClient(provider);
+  
+  const prompt = ai.definePrompt({
+    name: 'generateBudgetPlanPrompt',
+    input: { schema: GenerateBudgetPlanInputSchema },
+    output: { schema: GenerateBudgetPlanOutputSchema },
+    prompt: `You are a personal finance advisor. Generate a personalized budget plan for the user based on their financial situation, goals, and constraints.
 
 Financial Situation: {{{financialSituation}}}
 
-Budget Plan:`,
-});
+Please provide a comprehensive budget plan that includes:
+1. Analysis of their current financial situation
+2. Recommended budget categories with specific amounts
+3. Savings goals and strategies
+4. Tips for managing expenses
+5. Action steps they can take immediately
 
-const generateBudgetPlanFlow = ai.defineFlow(
-  {
-    name: 'generateBudgetPlanFlow',
-    inputSchema: GenerateBudgetPlanInputSchema,
-    outputSchema: GenerateBudgetPlanOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+Format your response in clear sections with headers and bullet points for easy reading.
+
+Budget Plan:`,
+  });
+
+  const generateBudgetPlanFlow = ai.defineFlow(
+    {
+      name: 'generateBudgetPlanFlow',
+      inputSchema: GenerateBudgetPlanInputSchema,
+      outputSchema: GenerateBudgetPlanOutputSchema,
+    },
+    async (flowInput) => {
+      const { output } = await prompt(flowInput);
+      return output!;
+    }
+  );
+
+  return generateBudgetPlanFlow(input);
+}

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PiggyBank, CircleDollarSign, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useMemo } from 'react';
 
 type SummaryCardsProps = {
   totalBudget: number;
@@ -8,19 +9,19 @@ type SummaryCardsProps = {
   remainingBudget: number;
 };
 
-function formatCurrency(amount: number) {
+const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   }).format(amount);
-}
+};
 
 export function SummaryCards({
   totalBudget,
   totalExpenses,
   remainingBudget,
 }: SummaryCardsProps) {
-  const cards = [
+  const cards = useMemo(() => [
     {
       title: 'Total Budget',
       amount: formatCurrency(totalBudget),
@@ -42,7 +43,7 @@ export function SummaryCards({
       background:
         remainingBudget >= 0 ? 'bg-secondary/30' : 'bg-destructive/20',
     },
-  ];
+  ], [totalBudget, totalExpenses, remainingBudget]);
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
